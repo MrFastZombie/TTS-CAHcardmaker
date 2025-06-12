@@ -1,0 +1,2 @@
+Card size: 512*696
+Deck size: 8*5
