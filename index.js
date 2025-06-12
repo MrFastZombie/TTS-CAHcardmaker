@@ -3,22 +3,23 @@ const j = require('jimp');
 const jimp = j.Jimp;
 const parse = require('csv-parse/sync');
 
-async function createCard(type, text, out) {
-    let img;
-    let font;
-    if(type == "black") {
-        img = await jimp.read("./cardassets/black-front.png");
-        font = await j.loadFont('./cardassets/cardfont.fnt');
-    } else {
-        img = await jimp.read("./cardassets/white-front.png");
-        font = await j.loadFont('./cardassets/cardfont-black.fnt');
-    }
+async function createCard(type, text, out, subtitle = false, pick = 1) {
+    let img = await jimp.read(`./cardassets/${type}-front.png`);
+    let font= await j.loadFont(`./cardassets/cardfont-${type}.fnt`);
 
     let name = out.split("/")[1];
     if(fs.existsSync(`./input/${out.split("/")[1]}-icon.png`)) { //Replace the card's icon if it exists.
         img.composite(await jimp.read(`./cardassets/iconpatch-${type}.png`), 77, 571);
         img.composite(await jimp.read(`./input/${name}-icon.png`), 77, 571);
     }
+
+    if(subtitle == true) {
+        let subtitleFont = await j.loadFont(`./cardassets/subtitlefont-${type}.fnt`);
+        img.composite(await jimp.read(`./cardassets/subtitlepatch-${type}.png`), 0, 0);
+        img.print({font: subtitleFont, x: 132, y: img.height-105-2, text: name, align: 'top-left', maxWidth: img.width-160});
+    }
+
+    if((pick == 2 || pick == 3) && type == "black") img.composite(await jimp.read(`./cardassets/pick-${pick}.png`), 0, 0);
     
     img.print({font, x: 80, y: 80, text: text, align: 'top-left', maxWidth: img.width-160});
     await img.write(out)
@@ -35,7 +36,7 @@ async function main() {
             let data = fs.readFileSync(`./input/${file}`).toString();
             let parsed = parse.parse(data, {columns: true, skip_empty_lines: true});
             parsed.forEach(card => {
-                createCard(card.type, card.text, `output/${outputFolder}/card_${i}.png`);
+                createCard(card.type, card.text, `output/${outputFolder}/card_${i}.png`, false, card.pick);
                 console.log(`Created card ${i}, type: ${card.type}, text: ${card.text}`);
                 i++;
             });
@@ -45,7 +46,7 @@ async function main() {
             return;
         }
     })
-    //createCard("white", "Test", `./output.png`);
+    //createCard("black", "Test eeee", `output/Cards Against Humanity/output.png`, false, 3);
 }
 
 main();
