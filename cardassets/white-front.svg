@@ -1,0 +1,22 @@
+<!--?xml version="1.0" encoding="UTF-8" ?-->
+<svg version="1.1" viewBox="0 0 261.12 355.2" xmlns="http://www.w3.org/2000/svg">
+  <rect x="0" y="0" width="261.12" height="355.2" fill="#fff" stroke-width="0"></rect>
+  <text fill="#000" font-family="HelveticaNeue" font-size="20px">
+    <tspan x="40" y="55" class="line0"></tspan>
+    <tspan x="40" y="79" class="line1"></tspan>
+    <tspan x="40" y="103" class="line2"></tspan>
+    <tspan x="40" y="127" class="line3"></tspan>
+    <tspan x="40" y="151" class="line4"></tspan>
+    <tspan x="40" y="175" class="line5"></tspan>
+    <tspan x="40" y="199" class="line6"></tspan>
+    <tspan x="40" y="223" class="line7"></tspan>
+    <tspan x="40" y="247" class="line8"></tspan>
+    <tspan x="40" y="271" class="line9"></tspan>
+  </text>
+  <rect transform="rotate(-20)" x="-64" y="293" width="13" height="19" rx="1" fill="#000"></rect>
+  <rect transform="rotate(8)" x="90" y="283" width="13.2" height="18.5" rx="1" fill="#fff" stroke="#000" stroke-width="0.6"></rect>
+  <text x="67" y="307" fill="#000" font-family="HelveticaNeue" font-size="6.6px">
+    Cards Against Humanity
+  </text>
+  <g transform="translate(51,295) rotate(8) scale(0.04)" class="icon"></g>
+</svg>
