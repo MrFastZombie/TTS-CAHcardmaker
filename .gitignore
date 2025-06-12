@@ -3,7 +3,7 @@ input/
 output/
 runnable-hiero.jar
 TTS-Deck-Editor.lnk
-testTemplate.png
+testTemplate*.png
 output.png
 
 # Logs
