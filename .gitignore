@@ -3,6 +3,7 @@ input/*
 !/input/subtitles.csv
 !/input/manydecks.csv
 manydeckscache/*
+!/manydeckscache/.placeholder
 output/
 runnable-hiero.jar
 TTS-Deck-Editor.lnk
