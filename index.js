@@ -3,6 +3,12 @@ const j = require('jimp');
 const jimp = j.Jimp;
 const parse = require('csv-parse/sync');
 
+function loadCSV(file) {
+    let data = fs.readFileSync(file).toString();
+    let parsed = parse.parse(data, {columns: true, skip_empty_lines: true});
+    return parsed;
+}
+
 async function createCard(type, text, out, subtitle = false, pick = 1) {
     let img = await jimp.read(`./cardassets/${type}-front.png`);
     let font= await j.loadFont(`./cardassets/cardfont-${type}.fnt`);
@@ -28,15 +34,19 @@ async function createCard(type, text, out, subtitle = false, pick = 1) {
 
 async function main() {
     fs.readdirSync("./input").forEach(file => {
+        let subtitleList = loadCSV("./input/subtitles.csv");
+        let subtitle = false;
         if(file.split(".")[1] != "csv") return;
+        if(file == "subtitles.csv") return;
+        if(file == "manydecks.csv") return;
+        if(subtitleList.find(sub => sub.list == file)) subtitle = true;
         let outputFolder = file.split(".")[0];
         if(!fs.existsSync(`./output/${outputFolder}`)) {
             fs.mkdirSync(`./output/${outputFolder}`);
             let i = 0;
-            let data = fs.readFileSync(`./input/${file}`).toString();
-            let parsed = parse.parse(data, {columns: true, skip_empty_lines: true});
+            let parsed = loadCSV(`./input/${file}`);
             parsed.forEach(card => {
-                createCard(card.type, card.text, `output/${outputFolder}/card_${i}.png`, false, card.pick);
+                createCard(card.type, card.text, `output/${outputFolder}/card_${i}.png`, subtitle, card.pick);
                 console.log(`Created card ${i}, type: ${card.type}, text: ${card.text}`);
                 i++;
             });
@@ -49,4 +59,4 @@ async function main() {
     //createCard("black", "Test eeee", `output/Cards Against Humanity/output.png`, false, 3);
 }
 
-main();
+main().catch(console.error);
