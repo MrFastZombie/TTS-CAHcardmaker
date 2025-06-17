@@ -5,12 +5,25 @@ const parse = require('csv-parse/sync');
 
 const manydecksendpoint = "https://decks.rereadgames.com/api/decks/"; //+ deck ID
 
+/**
+ * Loads a CSV file.
+ * @param {string} file FIle path to load CSV from.
+ * @returns A parsed CSV object.
+ */
 function loadCSV(file) {
     let data = fs.readFileSync(file).toString();
     let parsed = parse.parse(data, {columns: true, skip_empty_lines: true});
     return parsed;
 }
 
+/**
+ * Creates a card png from the data put into it.
+ * @param {string} type Either a white or black card.
+ * @param {string} text Text displayed on the card.
+ * @param {string} out Output path
+ * @param {boolean} subtitle Whether to replace the standard CAH subtitle with the deck title or not.
+ * @param {number} pick Amount of cards that should be picked for this card.
+ */
 async function createCard(type, text, out, subtitle = false, pick = 1) {
     let img = await jimp.read(`./cardassets/${type}-front.png`);
     let font= await j.loadFont(`./cardassets/cardfont-${type}.fnt`);
@@ -33,6 +46,11 @@ async function createCard(type, text, out, subtitle = false, pick = 1) {
     await img.write(out)
 }
 
+/**
+ * Gets data either from the cache, or from the ManyDecks API.
+ * @param {string} ID ManyDecks deck ID
+ * @returns {JSON} Response JSON
+ */
 async function requestManyDeck(ID) {
     try {
         let json = '';
@@ -60,7 +78,12 @@ async function requestManyDeck(ID) {
     }
 }
 
-function processDeck(deck) { //Processes a manydecks deck into a format that this script can use.
+/**
+ * Takes a ManyDecks deck and processes it into a format that this script can use.
+ * @param {JSON} deck Deck Data in JSON format
+ * @returns An array of card data.
+ */
+function processDeck(deck) {
     let i = 0;
     let data = [];
     let whiteCards = deck.responses;
