@@ -3,6 +3,8 @@ const j = require('jimp');
 const jimp = j.Jimp;
 const parse = require('csv-parse/sync');
 
+const manydecksendpoint = "https://decks.rereadgames.com/api/decks/"; //+ deck ID
+
 function loadCSV(file) {
     let data = fs.readFileSync(file).toString();
     let parsed = parse.parse(data, {columns: true, skip_empty_lines: true});
@@ -31,6 +33,72 @@ async function createCard(type, text, out, subtitle = false, pick = 1) {
     await img.write(out)
 }
 
+async function requestManyDeck(ID) {
+    try {
+        let json = '';
+
+        if(!fs.existsSync(`./manydeckscache/${ID}.json`)) { //File doesn't exist
+            console.log(`Deck ${ID} is not cached. Requesting...`);
+            let response = await fetch(manydecksendpoint+ID);
+            json = await response.json();
+            fs.writeFileSync(`./manydeckscache/${ID}.json`, JSON.stringify(json));
+        } else if(new Date(fs.statSync(`./manydeckscache/${ID}.json`).birthtime.getTime() + 7*24*60*60*1000)  <= new Date()) { //Cache is older than 7 days
+            console.log(`Deck ${ID} is outdated. Requesting...`);
+            let response = await fetch(manydecksendpoint+ID);
+            json = await response.json();
+            fs.writeFileSync(`./manydeckscache/${ID}.json`, JSON.stringify(json));
+        } else {
+            console.log(`Deck ${ID} is cached. Loading...`);
+            json = JSON.parse(fs.readFileSync(`./manydeckscache/${ID}.json`));
+        }
+
+        return json;
+    } catch (error) {
+        console.log(error);
+        return;
+        
+    }
+}
+
+function processDeck(deck) { //Processes a manydecks deck into a format that this script can use.
+    let i = 0;
+    let data = [];
+    let whiteCards = deck.responses;
+    let blackCards = deck.calls;
+    whiteCards.forEach(card => {
+        data[i] = {
+            type: "white",
+            text: card,
+            pick: ''
+        }
+        i++;
+    });
+    blackCards.forEach(card => {
+        let string = "";
+        pick = 1;
+
+        card[0].forEach(line => {
+            if(line.toString() != "[object Object]") string = string + line + " ";
+            else {
+                string = string + "_______ ";
+                pick++;
+            }
+        })
+
+        string = string.slice(0, -1);
+        if(string.slice(-1) == "_") string = string + ".";
+
+        if(pick > 1) pick = pick - 1; //Prevents double counting the first blank.
+
+        data[i] = {
+            type: "black",
+            text: string,
+            pick: pick
+        }
+        i++;
+    });
+    return data;
+}
 
 async function main() {
     fs.readdirSync("./input").forEach(file => {
@@ -56,6 +124,29 @@ async function main() {
             return;
         }
     })
+
+    let manydecks = await loadCSV("./input/manydecks.csv");
+    for (let deck of manydecks) {
+        let name = deck.name;
+        if(!fs.existsSync(`./output/${name}`)) {
+            let deckData = await requestManyDeck(deck.id);
+            let processedDeck = processDeck(deckData);
+            let subtitle = false;
+            if(deck.Subtitle == "true") subtitle = true;
+            fs.mkdirSync(`./output/${name}`);
+            let i = 0;
+
+            for (let card of processedDeck) {
+                createCard(card.type, card.text, `output/${name}/card_${i}.png`, subtitle, card.pick);
+                console.log(`Created card ${i}, type: ${card.type}, text: ${card.text}`);
+                i++;
+            }
+        } else {
+            console.log(`./output/${name} already exists! Skipping...`);
+            return;
+        }
+    }
+
     //createCard("black", "Test eeee", `output/Cards Against Humanity/output.png`, false, 3);
 }
 

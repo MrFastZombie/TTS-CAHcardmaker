@@ -1,5 +1,8 @@
 # Project-Specific
-input/
+input/*
+!/input/subtitles.csv
+!/input/manydecks.csv
+manydeckscache/*
 output/
 runnable-hiero.jar
 TTS-Deck-Editor.lnk
