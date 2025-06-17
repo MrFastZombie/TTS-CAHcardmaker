@@ -1,5 +1,5 @@
 const fs = require('fs');
-const j = require('jimp');
+const j = require('jimp'); //This package handles image manipulation.
 const jimp = j.Jimp;
 const parse = require('csv-parse/sync');
 
