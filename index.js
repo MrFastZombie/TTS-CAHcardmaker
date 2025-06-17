@@ -124,6 +124,7 @@ function processDeck(deck) {
 }
 
 async function main() {
+    if(!fs.existsSync(`./output`)) fs.mkdirSync(`./output`);
     fs.readdirSync("./input").forEach(file => {
         let subtitleList = loadCSV("./input/subtitles.csv");
         let subtitle = false;
