@@ -245,13 +245,17 @@ async function main() {
             if(deck.sheet == "true") sheet = true;
             fs.mkdirSync(`./output/${name}`);
             let i = 0;
+            let tasks = [];
 
-            for (let card of processedDeck) {
-                await createCard(card.type, card.text, `output/${name}/${card.type}-card_${i}.png`, subtitle, card.pick);
-                console.log(`Created card ${i}, type: ${card.type}, text: ${card.text}`);
+            for await (let card of processedDeck) {
+                tasks.push(createCard(card.type, card.text, `output/${name}/${card.type}-card_${i}.png`, subtitle, card.pick));
+                //console.log(`Created card ${i}, type: ${card.type}, text: ${card.text}`);
                 i++;
             }
+
+            await Promise.all(tasks);
             if(sheet) await createSheets(`./output/${name}`);
+            
         } else {
             console.log(`./output/${name} already exists! Skipping...`);
             return;
