@@ -46,6 +46,8 @@ You should be able to add an icon by creating a `deckNameHere-icon.png` in input
 You are now ready to run the program.
 
 # Running the program
+Made and tested with Node v18.20.3
+
 `node index.js`
 
 The program will create `./output`, where you will find a folder with your deck name. Each card will have its own PNG that you can do whatever with, or if you enabled sheeting you may also find files named something like `black-sheet_1.png` or `white-sheet_1.png` which are sheeted for Table Top Simulator.
