@@ -274,7 +274,7 @@ async function main() {
 
         } else {
             console.log(`./output/${name} already exists! Skipping...`);
-            return;
+            continue;
         }
     }
 
