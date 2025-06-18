@@ -123,6 +123,11 @@ function processDeck(deck) {
     return data;
 }
 
+/**
+ * Creates 8*5 sheets that can be imported into Table Top Simulator.
+ * @param {string} path Path to the folder that contains the cards to put on a sheet.
+ * @returns Nothing
+ */
 async function createSheets(path) {
     let iw = 1;
     let ib = 1;
@@ -255,7 +260,7 @@ async function main() {
 
             await Promise.all(tasks);
             if(sheet) await createSheets(`./output/${name}`);
-            
+
         } else {
             console.log(`./output/${name} already exists! Skipping...`);
             return;
