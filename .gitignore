@@ -1,7 +1,7 @@
 # Project-Specific
 input/*
-!/input/listoptions.csv
-!/input/manydecks.csv
+# !/input/listoptions.csv
+# !/input/manydecks.csv
 manydeckscache/*
 !/manydeckscache/.placeholder
 output/
