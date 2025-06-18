@@ -24,14 +24,14 @@ function loadCSV(file) {
  * @param {boolean} subtitle Whether to replace the standard CAH subtitle with the deck title or not.
  * @param {number} pick Amount of cards that should be picked for this card.
  */
-async function createCard(type, text, out, subtitle = false, pick = 1) {
+async function createCard(type, text, out, subtitle = false, pick = 1, name = "") {
     let img = await jimp.read(`./cardassets/${type}-front.png`);
     let font= await j.loadFont(`./cardassets/cardfont-${type}.fnt`);
 
-    let name = out.split("/")[1];
+    let fname = out.split("/")[1];
     if(fs.existsSync(`./input/${out.split("/")[1]}-icon.png`)) { //Replace the card's icon if it exists.
         img.composite(await jimp.read(`./cardassets/iconpatch-${type}.png`), 77, 571);
-        img.composite(await jimp.read(`./input/${name}-icon.png`), 77, 571);
+        img.composite(await jimp.read(`./input/${fname}-icon.png`), 77, 571);
     }
 
     if(subtitle == true) {
@@ -236,7 +236,7 @@ async function main() {
             let parsed = loadCSV(`./input/${file}`);
             let tasks = [];
             parsed.forEach(card => {
-                tasks.push(createCard(card.type, card.text, `output/${outputFolder}/${card.type}-card_${i}.png`, subtitle, card.pick));
+                tasks.push(createCard(card.type, card.text, `output/${outputFolder}/${card.type}-card_${i}.png`, subtitle, card.pick, outputFolder));
                 console.log(`Created card ${i}, type: ${card.type}, text: ${card.text}`);
                 i++;
             });
@@ -252,28 +252,29 @@ async function main() {
     let manydecks = await loadCSV("./input/manydecks.csv");
     for (let deck of manydecks) {
         let name = deck.name;
-        if(!fs.existsSync(`./output/${name}`)) {
+        let path = name.replaceAll(/[#%&{}\\<>*?\/$!'":@+`|=]/g,'');
+        if(!fs.existsSync(`./output/${path}`)) {
             let deckData = await requestManyDeck(deck.id);
             let processedDeck = processDeck(deckData);
             let subtitle = false;
             let sheet = false;
             if(deck.Subtitle == "true") subtitle = true;
             if(deck.sheet == "true") sheet = true;
-            fs.mkdirSync(`./output/${name}`);
+            fs.mkdirSync(`./output/${path}`);
             let i = 0;
             let tasks = [];
 
             for await (let card of processedDeck) {
-                tasks.push(createCard(card.type, card.text, `output/${name}/${card.type}-card_${i}.png`, subtitle, card.pick));
+                tasks.push(createCard(card.type, card.text, `output/${path}/${card.type}-card_${i}.png`, subtitle, card.pick, name));
                 //console.log(`Created card ${i}, type: ${card.type}, text: ${card.text}`);
                 i++;
             }
 
             await Promise.all(tasks);
-            if(sheet) await createSheets(`./output/${name}`);
+            if(sheet) await createSheets(`./output/${path}`);
 
         } else {
-            console.log(`./output/${name} already exists! Skipping...`);
+            console.log(`./output/${path} already exists! Skipping...`);
             continue;
         }
     }
