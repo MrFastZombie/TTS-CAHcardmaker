@@ -47,3 +47,9 @@ You are now ready to run the program.
 
 # Running the program
 `node index.js`
+
+The program will create `./output`, where you will find a folder with your deck name. Each card will have its own PNG that you can do whatever with, or if you enabled sheeting you may also find files named something like `black-sheet_1.png` or `white-sheet_1.png` which are sheeted for Table Top Simulator.
+
+Each sheet is 8*5 for 40 cards each. If a sheet is not full, make sure to set the card count when importing into Table Top Simulator. 
+
+Card backs are available in `./cardassets`.
