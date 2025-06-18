@@ -224,7 +224,7 @@ async function main() {
 
         optionsList.forEach(e => {
             if(e.list == file) {
-                subtitle = true;
+                if(e.subtitles == "true") subtitle = true;
                 if(e.sheet == "true") sheet = true;
             }
         });
