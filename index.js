@@ -123,6 +123,89 @@ function processDeck(deck) {
     return data;
 }
 
+async function createSheets(path) {
+    let iw = 1;
+    let ib = 1;
+    const sheetwidth = 8;
+    const sheetheight = 5;
+    const sheetcount =  sheetwidth * sheetheight;
+    const sheettemplate = await jimp.read(`./cardassets/sheet-template.png`);
+    var whiteSheetsPrinted = 0;
+    var blackSheetsPrinted = 0;
+    var whiteSheet = undefined;
+    var blackSheet = undefined;
+    var whiteOffsetX = 0;
+    var blackOffsetX = 0;
+    var whiteOffsetY = 0;
+    var blackOffsetY = 0;
+
+    let files = fs.readdirSync(path);
+    files.sort((a, b) => {
+        let numa = parseInt(a.split("_")[1].split(".")[0]);
+        let numb = parseInt(b.split("_")[1].split(".")[0]);
+        return numa-numb;
+    });
+
+    for (const file of files) {
+        let img = await jimp.read(path + "/" + file);
+        if(file.split(".")[1] != "png") return;
+        if(file.split("-")[1] == "sheet") return;
+        else if(file.split("-")[0] == "white") {
+            if(whiteSheet == undefined) { //no sheets yet
+                whiteSheet = await jimp.read(`./cardassets/sheet-template.png`);
+                await whiteSheet.composite(img, 0, 0);
+                whiteOffsetX = whiteOffsetX + img.width;
+            } else if(iw > sheetcount) { // new sheet needed
+                whiteSheetsPrinted++;
+                whiteSheet.write(`${path}/white-sheet_${whiteSheetsPrinted}.png`);
+                whiteSheet = await jimp.read(`./cardassets/sheet-template.png`);
+                whiteOffsetY = 0;
+                whiteOffsetX = 0;
+                await whiteSheet.composite(img, whiteOffsetX, whiteOffsetY);
+                whiteOffsetX = whiteOffsetX + img.width;
+                iw = 1;
+            } else if (iw % sheetwidth == 0) { //Move to next row
+                await whiteSheet.composite(img, whiteOffsetX, whiteOffsetY);
+                whiteOffsetY = whiteOffsetY + img.height;
+                whiteOffsetX = 0;
+            } else {
+                await whiteSheet.composite(img, whiteOffsetX, whiteOffsetY);
+                whiteOffsetX = whiteOffsetX + img.width;
+            }
+            iw++;
+        }
+        else if(file.split("-")[0] == "black") {
+            if(blackSheet == undefined) { //no sheets yet
+                blackSheet = await jimp.read(`./cardassets/sheet-template.png`);
+                await blackSheet.composite(img, 0, 0);
+                blackOffsetX = blackOffsetX + img.width;
+            } else if(ib > sheetcount) { // new sheet needed
+                blackSheetsPrinted++;
+                blackSheet.write(`${path}/black-sheet_${blackSheetsPrinted}.png`);
+                blackSheet = await jimp.read(`./cardassets/sheet-template.png`);
+                blackOffsetY = 0;
+                blackOffsetX = 0;
+                await blackSheet.composite(img, blackOffsetX, blackOffsetY);
+                blackOffsetX = blackOffsetX + img.width;
+                ib = 1;
+            } else if (ib % sheetwidth == 0) { //Move to next row
+                await blackSheet.composite(img, blackOffsetX, blackOffsetY);
+                blackOffsetY = blackOffsetY + img.height;
+                blackOffsetX = 0;
+            } else {
+                await blackSheet.composite(img, blackOffsetX, blackOffsetY);
+                blackOffsetX = blackOffsetX + img.width;
+            }
+            ib++;
+        }
+    }
+
+    whiteSheetsPrinted++;
+    blackSheetsPrinted++;
+    whiteSheet.write(`${path}/white-sheet_${whiteSheetsPrinted}.png`);
+    blackSheet.write(`${path}/black-sheet_${blackSheetsPrinted}.png`);
+
+}
 async function main() {
     if(!fs.existsSync(`./output`)) fs.mkdirSync(`./output`);
     fs.readdirSync("./input").forEach(file => {
@@ -138,7 +221,7 @@ async function main() {
             let i = 0;
             let parsed = loadCSV(`./input/${file}`);
             parsed.forEach(card => {
-                createCard(card.type, card.text, `output/${outputFolder}/card_${i}.png`, subtitle, card.pick);
+                createCard(card.type, card.text, `output/${outputFolder}/${card.type}-card_${i}.png`, subtitle, card.pick);
                 console.log(`Created card ${i}, type: ${card.type}, text: ${card.text}`);
                 i++;
             });
@@ -161,7 +244,7 @@ async function main() {
             let i = 0;
 
             for (let card of processedDeck) {
-                createCard(card.type, card.text, `output/${name}/card_${i}.png`, subtitle, card.pick);
+                createCard(card.type, card.text, `output/${name}/${card.type}-card_${i}.png`, subtitle, card.pick);
                 console.log(`Created card ${i}, type: ${card.type}, text: ${card.text}`);
                 i++;
             }
