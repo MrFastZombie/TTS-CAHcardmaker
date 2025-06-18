@@ -206,6 +206,7 @@ async function createSheets(path) {
     blackSheet.write(`${path}/black-sheet_${blackSheetsPrinted}.png`);
 
 }
+
 async function main() {
     if(!fs.existsSync(`./output`)) fs.mkdirSync(`./output`);
     fs.readdirSync("./input").forEach(file => {
@@ -239,15 +240,18 @@ async function main() {
             let deckData = await requestManyDeck(deck.id);
             let processedDeck = processDeck(deckData);
             let subtitle = false;
+            let sheet = false;
             if(deck.Subtitle == "true") subtitle = true;
+            if(deck.sheet == "true") sheet = true;
             fs.mkdirSync(`./output/${name}`);
             let i = 0;
 
             for (let card of processedDeck) {
-                createCard(card.type, card.text, `output/${name}/${card.type}-card_${i}.png`, subtitle, card.pick);
+                await createCard(card.type, card.text, `output/${name}/${card.type}-card_${i}.png`, subtitle, card.pick);
                 console.log(`Created card ${i}, type: ${card.type}, text: ${card.text}`);
                 i++;
             }
+            if(sheet) await createSheets(`./output/${name}`);
         } else {
             console.log(`./output/${name} already exists! Skipping...`);
             return;
