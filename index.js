@@ -214,29 +214,40 @@ async function createSheets(path) {
 
 async function main() {
     if(!fs.existsSync(`./output`)) fs.mkdirSync(`./output`);
-    fs.readdirSync("./input").forEach(file => {
-        let subtitleList = loadCSV("./input/subtitles.csv");
+    for (const file of fs.readdirSync("./input")) {
+        let optionsList = loadCSV("./input/listoptions.csv");
         let subtitle = false;
-        if(file.split(".")[1] != "csv") return;
-        if(file == "subtitles.csv") return;
-        if(file == "manydecks.csv") return;
-        if(subtitleList.find(sub => sub.list == file)) subtitle = true;
+        let sheet = false;
+        if(file.split(".")[1] != "csv") continue;
+        if(file == "listoptions.csv") continue;
+        if(file == "manydecks.csv") continue;
+
+        optionsList.forEach(e => {
+            if(e.list == file) {
+                subtitle = true;
+                if(e.sheet == "true") sheet = true;
+            }
+        });
+        
         let outputFolder = file.split(".")[0];
         if(!fs.existsSync(`./output/${outputFolder}`)) {
             fs.mkdirSync(`./output/${outputFolder}`);
             let i = 0;
             let parsed = loadCSV(`./input/${file}`);
+            let tasks = [];
             parsed.forEach(card => {
-                createCard(card.type, card.text, `output/${outputFolder}/${card.type}-card_${i}.png`, subtitle, card.pick);
+                tasks.push(createCard(card.type, card.text, `output/${outputFolder}/${card.type}-card_${i}.png`, subtitle, card.pick));
                 console.log(`Created card ${i}, type: ${card.type}, text: ${card.text}`);
                 i++;
             });
+            await Promise.all(tasks);
+            if(sheet) await createSheets(`./output/${outputFolder}`);
             //console.log(data);
         } else {
             console.log(`./output/${outputFolder} already exists! Skipping...`);
-            return;
+            continue;
         }
-    })
+    }
 
     let manydecks = await loadCSV("./input/manydecks.csv");
     for (let deck of manydecks) {

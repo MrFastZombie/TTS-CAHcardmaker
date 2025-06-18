@@ -1,6 +1,6 @@
 # Project-Specific
 input/*
-!/input/subtitles.csv
+!/input/listoptions.csv
 !/input/manydecks.csv
 manydeckscache/*
 !/manydeckscache/.placeholder
