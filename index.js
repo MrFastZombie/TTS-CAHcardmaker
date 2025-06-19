@@ -29,6 +29,7 @@ async function createCard(type, text, out, subtitle = false, pick = 1, name = ""
     let img = await jimp.read(`./cardassets/${type}-front.png`);
     let font= await j.loadFont(`./cardassets/cardfont-${type}.fnt`);
     let fontColor = "#000000";
+    let fontSize = 34;
     if(type == "black") fontColor = "#FFFFFF";
 
     let fname = out.split("/")[1];
@@ -45,8 +46,14 @@ async function createCard(type, text, out, subtitle = false, pick = 1, name = ""
 
     if((pick == 2 || pick == 3) && type == "black") img.composite(await jimp.read(`./cardassets/pick-${pick}.png`), 0, 0);
     
-    const textURI = text2img.generateSync(text, {fontFamily: 'HelveticaNeue', fontWeight: 'bold', fontSize: 34, lineHeight: 39, maxWidth: img.width-140, textAlign: 'left', textColor: fontColor, bgColor: "transparent"});
-    const textImg = await jimp.read(textURI);
+    var textURI = text2img.generateSync(text, {fontFamily: 'HelveticaNeue', fontWeight: 'bold', fontSize: fontSize, lineHeight: 39, maxWidth: img.width-140, textAlign: 'left', textColor: fontColor, bgColor: "transparent"});
+    var textImg = await jimp.read(textURI);
+
+    while(textImg.height > img.height-220) {
+        fontSize = fontSize - 1;
+        textURI = text2img.generateSync(text, {fontFamily: 'HelveticaNeue', fontWeight: 'bold', fontSize: fontSize, lineHeight: 39, maxWidth: img.width-140, textAlign: 'left', textColor: fontColor, bgColor: "transparent"});
+        textImg = await jimp.read(textURI);
+    }
 
     img.composite(textImg, 70, 60);
     await img.write(out)
