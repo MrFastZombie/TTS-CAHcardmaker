@@ -16,6 +16,7 @@
   "dependencies": {
     "canvas": "^3.1.0",
     "csv-parse": "^5.6.0",
-    "jimp": "^1.6.0"
+    "jimp": "^1.6.0",
+    "text-to-image": "^7.0.1"
   }
 }

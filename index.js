@@ -2,6 +2,7 @@ const fs = require('fs');
 const j = require('jimp'); //This package handles image manipulation.
 const jimp = j.Jimp;
 const parse = require('csv-parse/sync');
+const text2img = require('text-to-image');
 
 const manydecksendpoint = "https://decks.rereadgames.com/api/decks/"; //+ deck ID
 
@@ -27,6 +28,8 @@ function loadCSV(file) {
 async function createCard(type, text, out, subtitle = false, pick = 1, name = "") {
     let img = await jimp.read(`./cardassets/${type}-front.png`);
     let font= await j.loadFont(`./cardassets/cardfont-${type}.fnt`);
+    let fontColor = "#000000";
+    if(type == "black") fontColor = "#FFFFFF";
 
     let fname = out.split("/")[1];
     if(fs.existsSync(`./input/${out.split("/")[1]}-icon.png`)) { //Replace the card's icon if it exists.
@@ -42,8 +45,12 @@ async function createCard(type, text, out, subtitle = false, pick = 1, name = ""
 
     if((pick == 2 || pick == 3) && type == "black") img.composite(await jimp.read(`./cardassets/pick-${pick}.png`), 0, 0);
     
-    img.print({font, x: 80, y: 80, text: text, align: 'top-left', maxWidth: img.width-160, maxHeight: img.height-228});
+    const textURI = text2img.generateSync(text, {fontFamily: 'HelveticaNeue', fontWeight: 'bold', fontSize: 34, lineHeight: 39, maxWidth: img.width-140, textAlign: 'left', textColor: fontColor, bgColor: "transparent"});
+    const textImg = await jimp.read(textURI);
+
+    img.composite(textImg, 70, 60);
     await img.write(out)
+    //await img.write(`./output/test.png`);
 }
 
 /**
@@ -214,6 +221,7 @@ async function createSheets(path) {
 
 async function main() {
     if(!fs.existsSync(`./output`)) fs.mkdirSync(`./output`);
+    //await createCard("white", "This is a test card", `output/test.png`, false, 1, "test");
     for (const file of fs.readdirSync("./input")) {
         let optionsList = loadCSV("./input/listoptions.csv");
         let subtitle = false;
@@ -278,8 +286,6 @@ async function main() {
             continue;
         }
     }
-
-    //createCard("black", "Test eeee", `output/Cards Against Humanity/output.png`, false, 3);
 }
 
 main().catch(console.error);
