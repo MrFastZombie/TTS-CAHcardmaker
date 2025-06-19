@@ -59,7 +59,7 @@ You are now ready to run the program.
 
 ## Running the program
 
-npm install` to install dependencies.
+`npm install` to install dependencies.
 
 `node index.js`
 
