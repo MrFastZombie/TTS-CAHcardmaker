@@ -42,7 +42,7 @@ async function createCard(type, text, out, subtitle = false, pick = 1, name = ""
 
     if((pick == 2 || pick == 3) && type == "black") img.composite(await jimp.read(`./cardassets/pick-${pick}.png`), 0, 0);
     
-    img.print({font, x: 80, y: 80, text: text, align: 'top-left', maxWidth: img.width-160});
+    img.print({font, x: 80, y: 80, text: text, align: 'top-left', maxWidth: img.width-160, maxHeight: img.height-228});
     await img.write(out)
 }
 
