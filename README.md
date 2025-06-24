@@ -27,6 +27,8 @@ type,text,pick
 white,This is an example white card.,
 white,"If you want quotes in the card's test, do it ""like this"" and make sure to have these outer quotes too. -->",
 white,Ensure that there is a comma after the text. Technically a number should go there but it's not required.,
+white,You can add new lines by typing \n. This works inside quotes and without spaces too. You can also chain them like so to do multiple new lines\n\n,
+white,If you for whatever reason want a \n literally in your card, type \\n.,
 black,This is an example black card.,1
 black,The last number is technically not required but you can set it to up to 3. I recommend adding 1s anyways.,2
 black,"If your text includes a comma, be sure to add the outer quotes again like this.",1

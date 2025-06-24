@@ -30,6 +30,7 @@ async function createCard(type, text, out, subtitle = false, pick = 1, name = ""
     let font= await j.loadFont(`./cardassets/cardfont-${type}.fnt`);
     let fontColor = "#000000";
     let fontSize = 34;
+
     if(type == "black") fontColor = "#FFFFFF";
 
     let fname = out.split("/")[1];
@@ -251,7 +252,8 @@ async function main() {
             let parsed = loadCSV(`./input/${file}`);
             let tasks = [];
             parsed.forEach(card => {
-                tasks.push(createCard(card.type, card.text, `output/${outputFolder}/${card.type}-card_${i}.png`, subtitle, card.pick, outputFolder));
+                const textParsed = card.text.replaceAll("\\\\n", "~~n").replaceAll("\\n", "\n").replaceAll("~~n", "\\n"); //This gives nearly expected \n behaviour. It is done here to prevent applying this logic to ManyDecks imports.
+                tasks.push(createCard(card.type, textParsed, `output/${outputFolder}/${card.type}-card_${i}.png`, subtitle, card.pick, outputFolder));
                 console.log(`Created card ${i}, type: ${card.type}, text: ${card.text}`);
                 i++;
             });
